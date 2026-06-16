@@ -241,7 +241,57 @@ export default function Home() {
                         </CardContent>
                       </Card>
 
-                      {/* Coûts et revenus mensuels moved to the Ajustements page */}
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Coûts et revenus mensuels</CardTitle>
+                          <CardDescription>Ajoutez séparément chaque variation de revenu ou coût.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div className="grid gap-4 sm:grid-cols-2">
+                            <div>
+                              <Label>Mois (YYYY-MM)</Label>
+                              <Input
+                                type="text"
+                                placeholder="2025-06"
+                                value={newAdjustment.month}
+                                onChange={(e) => setNewAdjustment({ ...newAdjustment, month: e.target.value })}
+                              />
+                            </div>
+                            <div>
+                              <Label>Note</Label>
+                              <Input
+                                type="text"
+                                value={newAdjustment.note}
+                                onChange={(e) => setNewAdjustment({ ...newAdjustment, note: e.target.value })}
+                              />
+                            </div>
+                            <div>
+                              <Label>Revenus additionnels (€)</Label>
+                              <Input
+                                type="number"
+                                value={newAdjustment.additionalIncome}
+                                onChange={(e) => setNewAdjustment({ ...newAdjustment, additionalIncome: Number(e.target.value) })}
+                              />
+                            </div>
+                            <div>
+                              <Label>Coûts additionnels (€)</Label>
+                              <Input
+                                type="number"
+                                value={newAdjustment.additionalCosts}
+                                onChange={(e) => setNewAdjustment({ ...newAdjustment, additionalCosts: Number(e.target.value) })}
+                              />
+                            </div>
+                          </div>
+                          <Button onClick={handleAddAdjustment} className="w-full">Ajouter ajustement</Button>
+                          {adjustmentErrors.length > 0 && (
+                            <div className="rounded-3xl border border-destructive bg-destructive/10 p-4 text-sm text-destructive-foreground">
+                              {adjustmentErrors.map((error, index) => (
+                                <p key={index}>{error}</p>
+                              ))}
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
                     </div>
                   </>
                 ) : (
@@ -262,89 +312,46 @@ export default function Home() {
             {activeSection === 'ajustements' && (
               <section className="space-y-6">
                 <div className="grid gap-6 lg:grid-cols-1">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Coûts et revenus mensuels</CardTitle>
-                      <CardDescription>Ajoutez séparément chaque variation de revenu ou coût.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="grid gap-4 sm:grid-cols-2">
-                        <div>
-                          <Label>Mois (YYYY-MM)</Label>
-                          <Input
-                            type="text"
-                            placeholder="2025-06"
-                            value={newAdjustment.month}
-                            onChange={(e) => setNewAdjustment({ ...newAdjustment, month: e.target.value })}
-                          />
-                        </div>
-                        <div>
-                          <Label>Note</Label>
-                          <Input
-                            type="text"
-                            value={newAdjustment.note}
-                            onChange={(e) => setNewAdjustment({ ...newAdjustment, note: e.target.value })}
-                          />
-                        </div>
-                        <div>
-                          <Label>Revenus additionnels (€)</Label>
-                          <Input
-                            type="number"
-                            value={newAdjustment.additionalIncome}
-                            onChange={(e) => setNewAdjustment({ ...newAdjustment, additionalIncome: Number(e.target.value) })}
-                          />
-                        </div>
-                        <div>
-                          <Label>Coûts additionnels (€)</Label>
-                          <Input
-                            type="number"
-                            value={newAdjustment.additionalCosts}
-                            onChange={(e) => setNewAdjustment({ ...newAdjustment, additionalCosts: Number(e.target.value) })}
-                          />
-                        </div>
-                      </div>
-                      <Button onClick={handleAddAdjustment} className="w-full">Ajouter ajustement</Button>
-                      {adjustmentErrors.length > 0 && (
-                        <div className="rounded-3xl border border-destructive bg-destructive/10 p-4 text-sm text-destructive-foreground">
-                          {adjustmentErrors.map((error, index) => (
-                            <p key={index}>{error}</p>
-                          ))}
-                        </div>
-                      )}
-                      <div className="space-y-3">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Ajustements détaillés</CardTitle>
+                        <CardDescription>Liste complète des ajustements par mois</CardDescription>
+                      </CardHeader>
+                      <CardContent>
                         {monthlyAdjustments.length === 0 ? (
-                          <p className="text-sm text-muted-foreground">Aucun coût ou revenu mensuel défini.</p>
+                          <p className="text-sm text-muted-foreground">Aucun ajustement défini.</p>
                         ) : (
-                          monthlyAdjustments.map((adjustment) => (
-                            <div key={adjustment.id} className="rounded-3xl border border-border bg-muted p-4">
-                              <div className="flex flex-wrap items-center justify-between gap-4">
-                                <div>
-                                  <p className="font-semibold">{adjustment.month}</p>
-                                  <p className="text-sm text-muted-foreground">{adjustment.note || 'Sans description'}</p>
+                          <div className="space-y-3">
+                            {monthlyAdjustments.map((adjustment) => (
+                              <div key={adjustment.id} className="rounded-3xl border border-border bg-muted p-4">
+                                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                                  <div>
+                                    <p className="font-semibold">{adjustment.month}</p>
+                                    <p className="text-sm text-muted-foreground">{adjustment.note || 'Sans description'}</p>
+                                  </div>
+                                  <div className="text-right">
+                                    <p className="text-sm text-green-600">+{adjustment.additionalIncome.toLocaleString()}€</p>
+                                    <p className="text-sm text-destructive">-{adjustment.additionalCosts.toLocaleString()}€</p>
+                                  </div>
                                 </div>
-                                <div className="space-y-1 text-right">
-                                  <p className="text-sm text-green-600">+{adjustment.additionalIncome.toLocaleString()}€</p>
-                                  <p className="text-sm text-destructive">-{adjustment.additionalCosts.toLocaleString()}€</p>
+                                <div className="mt-4 flex gap-2">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      removeMonthlyAdjustment(adjustment.id);
+                                      setTimeout(() => calculateProjection(), 0);
+                                    }}
+                                  >
+                                    Supprimer
+                                  </Button>
                                 </div>
                               </div>
-                              <div className="mt-4 flex gap-2">
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => {
-                                    removeMonthlyAdjustment(adjustment.id);
-                                    setTimeout(() => calculateProjection(), 0);
-                                  }}
-                                >
-                                  Supprimer
-                                </Button>
-                              </div>
-                            </div>
-                          ))
+                            ))}
+                          </div>
                         )}
-                      </div>
-                    </CardContent>
-                  </Card>
+                      </CardContent>
+                    </Card>
                 </div>
               </section>
             )}
