@@ -11,7 +11,8 @@ interface ProjectionLineChartProps {
 export function ProjectionLineChart({ data, targetAmount }: ProjectionLineChartProps) {
   const chartData = data.map(month => ({
     month: new Date(month.month).toLocaleDateString('fr-FR', { month: 'short', year: '2-digit' }),
-    épargne: month.kitchenFundEnd,
+    fondsRéel: month.kitchenFundEnd,
+    trajectoireCible: month.targetTrackFund,
     objectif: targetAmount
   }));
 
@@ -38,7 +39,7 @@ export function ProjectionLineChart({ data, targetAmount }: ProjectionLineChartP
         <Legend />
         <Line 
           type="monotone" 
-          dataKey="épargne" 
+          dataKey="fondsRéel" 
           stroke="#3b82f6" 
           strokeWidth={3}
           dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
@@ -47,10 +48,19 @@ export function ProjectionLineChart({ data, targetAmount }: ProjectionLineChartP
         />
         <Line 
           type="monotone" 
+          dataKey="trajectoireCible" 
+          stroke="#f59e0b" 
+          strokeWidth={2}
+          strokeDasharray="5 5"
+          dot={false}
+          animationDuration={1000}
+        />
+        <Line 
+          type="monotone" 
           dataKey="objectif" 
           stroke="#10b981" 
           strokeWidth={2}
-          strokeDasharray="5 5"
+          strokeDasharray="10 5"
           dot={false}
           animationDuration={1000}
         />

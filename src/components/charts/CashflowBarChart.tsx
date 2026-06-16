@@ -10,9 +10,10 @@ interface CashflowBarChartProps {
 export function CashflowBarChart({ data }: CashflowBarChartProps) {
   const chartData = data.map(month => ({
     month: new Date(month.month).toLocaleDateString('fr-FR', { month: 'short', year: '2-digit' }),
-    revenus: month.salaryTotal,
-    travaux: month.worksPayment,
-    épargne: month.actualSavings
+    revenusBase: month.baseIncome,
+    revenusAdditionnels: month.additionalIncome,
+    coûts: month.additionalCosts,
+    contribution: month.monthlyContribution
   }));
 
   return (
@@ -37,21 +38,27 @@ export function CashflowBarChart({ data }: CashflowBarChartProps) {
         />
         <Legend />
         <Bar 
-          dataKey="revenus" 
+          dataKey="revenusBase" 
           fill="#3b82f6" 
-          name="Revenus"
+          name="Revenus base"
           animationDuration={800}
         />
         <Bar 
-          dataKey="travaux" 
+          dataKey="revenusAdditionnels" 
+          fill="#60a5fa" 
+          name="Revenus additionnels"
+          animationDuration={800}
+        />
+        <Bar 
+          dataKey="coûts" 
           fill="#ef4444" 
-          name="Travaux"
+          name="Coûts"
           animationDuration={800}
         />
         <Bar 
-          dataKey="épargne" 
+          dataKey="contribution" 
           fill="#10b981" 
-          name="Épargne"
+          name="Contribution nette"
           animationDuration={800}
         />
       </BarChart>

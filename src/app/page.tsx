@@ -14,33 +14,36 @@ export default function Home() {
   const {
     config,
     updateConfig,
-    workPayments,
-    addWorkPayment,
-    removeWorkPayment,
+    monthlyAdjustments,
+    addMonthlyAdjustment,
+    removeMonthlyAdjustment,
     projection,
     scenarioResults,
     selectedScenario,
     setSelectedScenario,
     calculateProjection,
     errors,
+    warnings,
     scenarios
   } = useProjection();
 
-  const [newWorkPayment, setNewWorkPayment] = useState({
+  const [newAdjustment, setNewAdjustment] = useState({
     month: '',
-    amount: 0,
-    description: ''
+    additionalIncome: 0,
+    additionalCosts: 0,
+    note: ''
   });
 
-  const handleAddWorkPayment = () => {
-    if (newWorkPayment.month && newWorkPayment.amount > 0) {
-      addWorkPayment({
+  const handleAddAdjustment = () => {
+    if (newAdjustment.month) {
+      addMonthlyAdjustment({
         id: Date.now().toString(),
-        month: newWorkPayment.month,
-        amount: newWorkPayment.amount,
-        description: newWorkPayment.description
+        month: newAdjustment.month,
+        additionalIncome: newAdjustment.additionalIncome,
+        additionalCosts: newAdjustment.additionalCosts,
+        note: newAdjustment.note
       });
-      setNewWorkPayment({ month: '', amount: 0, description: '' });
+      setNewAdjustment({ month: '', additionalIncome: 0, additionalCosts: 0, note: '' });
     }
   };
 
@@ -62,10 +65,18 @@ export default function Home() {
           </div>
         )}
 
+        {warnings.length > 0 && (
+          <div className="mb-4 p-4 bg-yellow-900/50 border border-yellow-500 rounded-lg">
+            {warnings.map((warning, i) => (
+              <p key={i} className="text-yellow-200">{warning}</p>
+            ))}
+          </div>
+        )}
+
         <Tabs defaultValue="parametres" className="space-y-6">
           <TabsList className="bg-zinc-900 border border-zinc-800">
             <TabsTrigger value="parametres">Paramètres</TabsTrigger>
-            <TabsTrigger value="travaux">Travaux</TabsTrigger>
+            <TabsTrigger value="ajustements">Ajustements mensuels</TabsTrigger>
             <TabsTrigger value="projection">Projection</TabsTrigger>
             <TabsTrigger value="scenarios">Scénarios</TabsTrigger>
           </TabsList>
@@ -74,25 +85,16 @@ export default function Home() {
             <Card className="bg-zinc-900 border-zinc-800">
               <CardHeader>
                 <CardTitle>Configuration du ménage</CardTitle>
-                <CardDescription>Entrez vos revenus et objectifs</CardDescription>
+                <CardDescription>Entrez vos revenus de base et objectifs</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label>Salaire mensuel (€)</Label>
+                    <Label>Revenu net mensuel de base (€)</Label>
                     <Input
                       type="number"
-                      value={config.salary}
-                      onChange={(e) => updateConfig({ salary: Number(e.target.value) })}
-                      className="bg-zinc-800 border-zinc-700"
-                    />
-                  </div>
-                  <div>
-                    <Label>Revenus annexes (€)</Label>
-                    <Input
-                      type="number"
-                      value={config.otherIncome}
-                      onChange={(e) => updateConfig({ otherIncome: Number(e.target.value) })}
+                      value={config.baseNetIncome}
+                      onChange={(e) => updateConfig({ baseNetIncome: Number(e.target.value) })}
                       className="bg-zinc-800 border-zinc-700"
                     />
                   </div>
@@ -115,15 +117,6 @@ export default function Home() {
                     />
                   </div>
                   <div>
-                    <Label>Capacité épargne mensuelle (€)</Label>
-                    <Input
-                      type="number"
-                      value={config.monthlySavingsCapacity}
-                      onChange={(e) => updateConfig({ monthlySavingsCapacity: Number(e.target.value) })}
-                      className="bg-zinc-800 border-zinc-700"
-                    />
-                  </div>
-                  <div>
                     <Label>Date cible</Label>
                     <Input
                       type="date"
@@ -140,58 +133,68 @@ export default function Home() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="travaux" className="space-y-4">
+          <TabsContent value="ajustements" className="space-y-4">
             <Card className="bg-zinc-900 border-zinc-800">
               <CardHeader>
-                <CardTitle>Paiements travaux restants</CardTitle>
-                <CardDescription>Ajoutez les paiements à effectuer</CardDescription>
+                <CardTitle>Ajustements mensuels</CardTitle>
+                <CardDescription>Ajoutez des revenus additionnels ou coûts par mois</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-4 gap-4">
                   <div>
                     <Label>Mois (YYYY-MM)</Label>
                     <Input
                       type="text"
                       placeholder="2025-06"
-                      value={newWorkPayment.month}
-                      onChange={(e) => setNewWorkPayment({ ...newWorkPayment, month: e.target.value })}
+                      value={newAdjustment.month}
+                      onChange={(e) => setNewAdjustment({ ...newAdjustment, month: e.target.value })}
                       className="bg-zinc-800 border-zinc-700"
                     />
                   </div>
                   <div>
-                    <Label>Montant (€)</Label>
+                    <Label>Revenus additionnels (€)</Label>
                     <Input
                       type="number"
-                      value={newWorkPayment.amount}
-                      onChange={(e) => setNewWorkPayment({ ...newWorkPayment, amount: Number(e.target.value) })}
+                      value={newAdjustment.additionalIncome}
+                      onChange={(e) => setNewAdjustment({ ...newAdjustment, additionalIncome: Number(e.target.value) })}
                       className="bg-zinc-800 border-zinc-700"
                     />
                   </div>
                   <div>
-                    <Label>Description</Label>
+                    <Label>Coûts additionnels (€)</Label>
+                    <Input
+                      type="number"
+                      value={newAdjustment.additionalCosts}
+                      onChange={(e) => setNewAdjustment({ ...newAdjustment, additionalCosts: Number(e.target.value) })}
+                      className="bg-zinc-800 border-zinc-700"
+                    />
+                  </div>
+                  <div>
+                    <Label>Note</Label>
                     <Input
                       type="text"
-                      value={newWorkPayment.description}
-                      onChange={(e) => setNewWorkPayment({ ...newWorkPayment, description: e.target.value })}
+                      value={newAdjustment.note}
+                      onChange={(e) => setNewAdjustment({ ...newAdjustment, note: e.target.value })}
                       className="bg-zinc-800 border-zinc-700"
                     />
                   </div>
                 </div>
-                <Button onClick={handleAddWorkPayment}>Ajouter paiement</Button>
+                <Button onClick={handleAddAdjustment}>Ajouter ajustement</Button>
                 
                 <div className="space-y-2 mt-4">
-                  {workPayments.map((payment) => (
-                    <div key={payment.id} className="flex justify-between items-center p-3 bg-zinc-800 rounded-lg">
+                  {monthlyAdjustments.map((adjustment) => (
+                    <div key={adjustment.id} className="flex justify-between items-center p-3 bg-zinc-800 rounded-lg">
                       <div>
-                        <span className="font-medium">{payment.month}</span>
-                        <span className="ml-2 text-gray-400">{payment.description}</span>
+                        <span className="font-medium">{adjustment.month}</span>
+                        {adjustment.note && <span className="ml-2 text-gray-400">{adjustment.note}</span>}
                       </div>
                       <div className="flex items-center gap-4">
-                        <span className="text-white">{payment.amount.toLocaleString()}€</span>
+                        <span className="text-green-400">+{adjustment.additionalIncome}€</span>
+                        <span className="text-red-400">-{adjustment.additionalCosts}€</span>
                         <Button
                           variant="destructive"
                           size="sm"
-                          onClick={() => removeWorkPayment(payment.id)}
+                          onClick={() => removeMonthlyAdjustment(adjustment.id)}
                         >
                           Supprimer
                         </Button>
@@ -206,7 +209,7 @@ export default function Home() {
           <TabsContent value="projection" className="space-y-4">
             {projection && (
               <>
-                <div className="grid grid-cols-4 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <Card className="bg-zinc-900 border-zinc-800">
                     <CardHeader>
                       <CardDescription>Objectif</CardDescription>
@@ -227,17 +230,11 @@ export default function Home() {
                       </CardTitle>
                     </CardHeader>
                   </Card>
-                  <Card className="bg-zinc-900 border-zinc-800">
-                    <CardHeader>
-                      <CardDescription>Épargne mensuelle requise</CardDescription>
-                      <CardTitle className="text-2xl">{projection.requiredMonthlySavings.toLocaleString()}€</CardTitle>
-                    </CardHeader>
-                  </Card>
                 </div>
 
                 <Card className="bg-zinc-900 border-zinc-800">
                   <CardHeader>
-                    <CardTitle>Projection de l'épargne</CardTitle>
+                    <CardTitle>Projection de l'épargne vs trajectoire cible</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <ProjectionLineChart data={projection.months} targetAmount={config.targetAmount} />

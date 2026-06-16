@@ -1,37 +1,40 @@
 export interface HouseholdConfig {
-  salary: number;
-  otherIncome: number;
+  baseNetIncome: number;
   currentSavings: number;
   targetAmount: number;
   targetDate: string;
-  monthlySavingsCapacity: number;
 }
 
-export interface WorkPayment {
+export interface MonthlyAdjustment {
   id: string;
   month: string;
-  amount: number;
-  description: string;
+  additionalIncome: number;
+  additionalCosts: number;
+  note?: string;
 }
 
 export interface ProjectionMonth {
   month: string;
-  salaryTotal: number;
-  otherIncome: number;
-  worksPayment: number;
-  savingsCapacity: number;
-  actualSavings: number;
+  baseIncome: number;
+  additionalIncome: number;
+  additionalCosts: number;
+  monthlyContribution: number;
   kitchenFundStart: number;
   kitchenFundEnd: number;
-  targetGap: number;
+  remainingToTarget: number;
+  targetTrackFund: number;
+  gapVsTrack: number;
   scenario: string;
 }
 
 export interface ScenarioConfig {
   name: string;
-  savingsModifier: number;
+  incomeAdjustmentFactor?: number;
+  costAdjustmentFactor?: number;
   bonusMonth?: string;
   bonusAmount?: number;
+  extraCostMonth?: string;
+  extraCostAmount?: number;
   description: string;
 }
 
@@ -41,5 +44,4 @@ export interface ProjectionResult {
   reachDate?: string;
   finalAmount: number;
   finalGap: number;
-  requiredMonthlySavings: number;
 }

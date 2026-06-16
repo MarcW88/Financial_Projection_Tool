@@ -1,8 +1,8 @@
-import { HouseholdConfig, WorkPayment, ProjectionMonth, ProjectionResult } from '@/types';
+import { HouseholdConfig, MonthlyAdjustment, ProjectionMonth, ProjectionResult } from '@/types';
 
 export function buildProjection(
   config: HouseholdConfig,
-  workPayments: WorkPayment[]
+  monthlyAdjustments: MonthlyAdjustment[]
 ): ProjectionResult {
   const startDate = new Date();
   const targetDate = new Date(config.targetDate);
@@ -12,37 +12,57 @@ export function buildProjection(
   let targetReached = false;
   let reachDate: string | undefined;
   
+  // Calculate target track (linear progression from currentSavings to targetAmount)
   const currentDate = new Date(startDate);
-  currentDate.setDate(1); // Set to first of month
+  currentDate.setDate(1);
+  
+  const totalMonths: number[] = [];
+  let tempDate = new Date(currentDate);
+  while (tempDate <= targetDate) {
+    totalMonths.push(tempDate.getTime());
+    tempDate.setMonth(tempDate.getMonth() + 1);
+  }
+  
+  const totalMonthsCount = totalMonths.length;
+  const startAmount = config.currentSavings;
+  const endAmount = config.targetAmount;
+  const monthlyTargetIncrement = (endAmount - startAmount) / totalMonthsCount;
+  
+  let monthIndex = 0;
   
   while (currentDate <= targetDate) {
     const monthStr = currentDate.toISOString().slice(0, 7);
     
-    // Find work payments for this month
-    const monthWorkPayments = workPayments.filter(wp => wp.month === monthStr);
-    const totalWorkPayment = monthWorkPayments.reduce((sum, wp) => sum + wp.amount, 0);
+    // Find monthly adjustment for this month
+    const adjustment = monthlyAdjustments.find(ma => ma.month === monthStr);
+    const additionalIncome = adjustment?.additionalIncome || 0;
+    const additionalCosts = adjustment?.additionalCosts || 0;
     
-    // Calculate savings
-    const salaryTotal = config.salary + config.otherIncome;
-    const savingsCapacity = config.monthlySavingsCapacity;
-    const actualSavings = Math.max(0, savingsCapacity - totalWorkPayment);
+    // Calculate monthly contribution
+    const baseIncome = config.baseNetIncome;
+    const monthlyContribution = Math.max(0, baseIncome + additionalIncome - additionalCosts);
     
     const fundStart = currentFund;
-    currentFund += actualSavings;
+    currentFund += monthlyContribution;
     const fundEnd = currentFund;
     
-    const targetGap = config.targetAmount - fundEnd;
+    const remainingToTarget = config.targetAmount - fundEnd;
+    
+    // Calculate target track fund (theoretical linear progression)
+    const targetTrackFund = startAmount + (monthlyTargetIncrement * (monthIndex + 1));
+    const gapVsTrack = fundEnd - targetTrackFund;
     
     months.push({
       month: monthStr,
-      salaryTotal,
-      otherIncome: config.otherIncome,
-      worksPayment: totalWorkPayment,
-      savingsCapacity,
-      actualSavings,
+      baseIncome,
+      additionalIncome,
+      additionalCosts,
+      monthlyContribution,
       kitchenFundStart: fundStart,
       kitchenFundEnd: fundEnd,
-      targetGap,
+      remainingToTarget,
+      targetTrackFund,
+      gapVsTrack,
       scenario: 'base'
     });
     
@@ -53,34 +73,18 @@ export function buildProjection(
     
     // Move to next month
     currentDate.setMonth(currentDate.getMonth() + 1);
+    monthIndex++;
   }
   
   const finalMonth = months[months.length - 1];
   const finalAmount = finalMonth.kitchenFundEnd;
   const finalGap = config.targetAmount - finalAmount;
   
-  // Calculate required monthly savings to reach target
-  const remainingMonths = months.length;
-  const remainingAmount = config.targetAmount - config.currentSavings;
-  const totalWorkPayments = workPayments.reduce((sum, wp) => sum + wp.amount, 0);
-  const requiredMonthlySavings = (remainingAmount + totalWorkPayments) / remainingMonths;
-  
   return {
     months,
     targetReached,
     reachDate,
     finalAmount,
-    finalGap,
-    requiredMonthlySavings
+    finalGap
   };
-}
-
-export function calculateRequiredMonthlySavings(
-  currentSavings: number,
-  targetAmount: number,
-  months: number,
-  totalWorkPayments: number
-): number {
-  const remainingAmount = targetAmount - currentSavings;
-  return (remainingAmount + totalWorkPayments) / months;
 }

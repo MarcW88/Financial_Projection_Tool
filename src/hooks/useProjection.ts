@@ -1,40 +1,39 @@
 import { useState, useCallback } from 'react';
-import { HouseholdConfig, WorkPayment, ProjectionResult, ScenarioConfig } from '@/types';
+import { HouseholdConfig, MonthlyAdjustment, ProjectionResult, ScenarioConfig } from '@/types';
 import { buildProjection } from '@/lib/calculators/projection';
 import { runScenario, defaultScenarios } from '@/lib/scenarios';
 import { validateConfig } from '@/lib/validators';
 
 export function useProjection() {
   const [config, setConfig] = useState<HouseholdConfig>({
-    salary: 0,
-    otherIncome: 0,
-    currentSavings: 0,
-    targetAmount: 0,
-    targetDate: '2026-12-31',
-    monthlySavingsCapacity: 0
+    baseNetIncome: 2600,
+    currentSavings: 14000,
+    targetAmount: 52000,
+    targetDate: '2026-12-31'
   });
   
-  const [workPayments, setWorkPayments] = useState<WorkPayment[]>([]);
+  const [monthlyAdjustments, setMonthlyAdjustments] = useState<MonthlyAdjustment[]>([]);
   const [projection, setProjection] = useState<ProjectionResult | null>(null);
   const [scenarioResults, setScenarioResults] = useState<Record<string, ProjectionResult>>({});
   const [selectedScenario, setSelectedScenario] = useState<string>('realiste');
   const [errors, setErrors] = useState<string[]>([]);
+  const [warnings, setWarnings] = useState<string[]>([]);
 
   const updateConfig = useCallback((newConfig: Partial<HouseholdConfig>) => {
     setConfig(prev => ({ ...prev, ...newConfig }));
   }, []);
 
-  const addWorkPayment = useCallback((payment: WorkPayment) => {
-    setWorkPayments(prev => [...prev, payment]);
+  const addMonthlyAdjustment = useCallback((adjustment: MonthlyAdjustment) => {
+    setMonthlyAdjustments(prev => [...prev, adjustment]);
   }, []);
 
-  const removeWorkPayment = useCallback((id: string) => {
-    setWorkPayments(prev => prev.filter(wp => wp.id !== id));
+  const removeMonthlyAdjustment = useCallback((id: string) => {
+    setMonthlyAdjustments(prev => prev.filter(ma => ma.id !== id));
   }, []);
 
-  const updateWorkPayment = useCallback((id: string, updates: Partial<WorkPayment>) => {
-    setWorkPayments(prev => prev.map(wp => 
-      wp.id === id ? { ...wp, ...updates } : wp
+  const updateMonthlyAdjustment = useCallback((id: string, updates: Partial<MonthlyAdjustment>) => {
+    setMonthlyAdjustments(prev => prev.map(ma => 
+      ma.id === id ? { ...ma, ...updates } : ma
     ));
   }, []);
 
@@ -42,34 +41,37 @@ export function useProjection() {
     const validation = validateConfig(config);
     if (!validation.valid) {
       setErrors(validation.errors);
+      setWarnings(validation.warnings);
       return;
     }
     
     setErrors([]);
-    const result = buildProjection(config, workPayments);
+    setWarnings(validation.warnings);
+    const result = buildProjection(config, monthlyAdjustments);
     setProjection(result);
     
     // Calculate all scenarios
     const results: Record<string, ProjectionResult> = {};
     defaultScenarios.forEach(scenario => {
-      results[scenario.name] = runScenario(config, scenario, workPayments);
+      results[scenario.name] = runScenario(config, scenario, monthlyAdjustments);
     });
     setScenarioResults(results);
-  }, [config, workPayments]);
+  }, [config, monthlyAdjustments]);
 
   return {
     config,
     updateConfig,
-    workPayments,
-    addWorkPayment,
-    removeWorkPayment,
-    updateWorkPayment,
+    monthlyAdjustments,
+    addMonthlyAdjustment,
+    removeMonthlyAdjustment,
+    updateMonthlyAdjustment,
     projection,
     scenarioResults,
     selectedScenario,
     setSelectedScenario,
     calculateProjection,
     errors,
+    warnings,
     scenarios: defaultScenarios
   };
 }
