@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useCallback, ChangeEvent } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,6 +39,42 @@ export default function Home() {
   });
   const [adjustmentErrors, setAdjustmentErrors] = useState<string[]>([]);
   const [aggregation, setAggregation] = useState<'week' | 'month'>('week');
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleImportFile = useCallback(async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      if (!Array.isArray(parsed)) {
+        alert('Fichier JSON invalide (format attendu: tableau).');
+        return;
+      }
+      const ok = parsed.every((it: any) => typeof it.month === 'string');
+      if (!ok) {
+        alert('Format des éléments invalide. Chaque élément doit contenir au moins une propriété "month".');
+        return;
+      }
+      // replace existing adjustments
+      monthlyAdjustments.forEach(ma => removeMonthlyAdjustment(ma.id));
+      parsed.forEach((it: any) => {
+        const adj = {
+          id: it.id || Date.now().toString() + Math.random().toString(36).slice(2),
+          month: it.month,
+          additionalIncome: Number(it.additionalIncome) || 0,
+          additionalCosts: Number(it.additionalCosts) || 0,
+          note: it.note || ''
+        };
+        addMonthlyAdjustment(adj);
+      });
+      // reset input
+      (e.target).value = '';
+    } catch (err) {
+      console.error(err);
+      alert('Erreur lors de la lecture du fichier.');
+    }
+  }, [monthlyAdjustments, removeMonthlyAdjustment, addMonthlyAdjustment]);
 
   const handleAddAdjustment = () => {
     const adjustment = {
@@ -312,11 +348,33 @@ export default function Home() {
               <section className="space-y-6">
                 <div className="grid gap-6 lg:grid-cols-1">
                     <Card>
-                      <CardHeader>
-                        <CardTitle>Ajustements détaillés</CardTitle>
-                        <CardDescription>Liste complète des ajustements par mois</CardDescription>
+                      <CardHeader className="flex items-center justify-between gap-4">
+                        <div>
+                          <CardTitle>Ajustements détaillés</CardTitle>
+                          <CardDescription>Liste complète des ajustements par mois</CardDescription>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button size="sm" variant="outline" onClick={() => {
+                            // export adjustments
+                            const data = JSON.stringify(monthlyAdjustments, null, 2);
+                            const blob = new Blob([data], { type: 'application/json' });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `monthly_adjustments-${new Date().toISOString().slice(0,10)}.json`;
+                            document.body.appendChild(a);
+                            a.click();
+                            a.remove();
+                            URL.revokeObjectURL(url);
+                          }}>Exporter</Button>
+                          <Button size="sm" variant="outline" onClick={() => {
+                            const input = fileInputRef.current;
+                            if (input) input.click();
+                          }}>Importer</Button>
+                        </div>
                       </CardHeader>
                       <CardContent>
+                        <input ref={fileInputRef as any} type="file" accept="application/json" className="hidden" onChange={handleImportFile} />
                         {monthlyAdjustments.length === 0 ? (
                           <p className="text-sm text-muted-foreground">Aucun ajustement défini.</p>
                         ) : (
