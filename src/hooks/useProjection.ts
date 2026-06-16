@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { HouseholdConfig, MonthlyAdjustment, ProjectionResult, ScenarioConfig } from '@/types';
 import { buildProjection } from '@/lib/calculators/projection';
 import { runScenario, defaultScenarios } from '@/lib/scenarios';
@@ -57,6 +57,10 @@ export function useProjection() {
     });
     setScenarioResults(results);
   }, [config, monthlyAdjustments]);
+
+  useEffect(() => {
+    calculateProjection();
+  }, [calculateProjection]);
 
   return {
     config,
