@@ -76,11 +76,16 @@ export function buildProjection(
   const finalAmount = finalMonth.kitchenFundEnd;
   const finalGap = config.targetAmount - finalAmount;
   
-  // Compute average weekly contribution and add a projected trajectory
-  const avgWeeklyContribution = months.reduce((s, m) => s + m.weeklyContribution, 0) / Math.max(1, months.length);
-  months.forEach((m, i) => {
-    m.projectedTrajectory = startAmount + avgWeeklyContribution * (i + 1);
-  });
+  // Compute projected trajectory using a rolling average of recent weekly contributions
+  const windowSize = 4; // last 4 weeks
+  let cumulative = startAmount;
+  for (let i = 0; i < months.length; i++) {
+    const startIdx = Math.max(0, i - windowSize + 1);
+    const slice = months.slice(startIdx, i + 1);
+    const avg = slice.reduce((s, it) => s + it.weeklyContribution, 0) / Math.max(1, slice.length);
+    cumulative += avg;
+    months[i].projectedTrajectory = cumulative;
+  }
 
   return {
     months,
