@@ -74,7 +74,21 @@ export function useProjection() {
       }
     } catch (err) {
       // ignore parse errors
-      // console.warn('Failed to load adjustments from localStorage', err);
+    }
+  }, []);
+
+  // Load saved config (baseNetIncome, currentSavings, targetAmount, targetDate)
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('financial_projection_config');
+      if (raw) {
+        const parsed = JSON.parse(raw) as Partial<HouseholdConfig>;
+        if (parsed && typeof parsed === 'object') {
+          setConfig(prev => ({ ...prev, ...parsed }));
+        }
+      }
+    } catch (err) {
+      // ignore
     }
   }, []);
 
@@ -85,6 +99,15 @@ export function useProjection() {
       // ignore storage errors
     }
   }, [monthlyAdjustments]);
+
+  // Persist config whenever it changes so user settings survive refreshes
+  useEffect(() => {
+    try {
+      localStorage.setItem('financial_projection_config', JSON.stringify(config));
+    } catch (err) {
+      // ignore
+    }
+  }, [config]);
 
   return {
     config,
