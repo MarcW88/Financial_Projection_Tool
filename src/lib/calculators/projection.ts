@@ -87,11 +87,65 @@ export function buildProjection(
     months[i].projectedTrajectory = cumulative;
   }
 
+  // If target not reached by targetDate, estimate the month when it would be reached
+  let estimatedReachMonth: string | undefined = undefined;
+  if (!targetReached) {
+    // average recent weekly contributions
+    const recent = months.slice(-windowSize).map(m => m.weeklyContribution);
+    const avgWeekly = recent.reduce((s, v) => s + v, 0) / Math.max(1, recent.length);
+
+    if (avgWeekly > 0) {
+      let extraWeekStart = weekStarts[weekStarts.length - 1] ? new Date(weekStarts[weekStarts.length - 1].getTime() + weekDuration) : new Date(startDate.getTime() + weekDuration);
+      let extraCumulative = finalAmount;
+      const maxExtraWeeks = 52 * 5; // cap to 5 years
+      for (let i = 0; i < maxExtraWeeks && extraCumulative < config.targetAmount; i++) {
+        const monthKey = extraWeekStart.toISOString().slice(0, 7);
+        const weekOfMonth = Math.floor((extraWeekStart.getDate() - 1) / 7) + 1;
+        const period = `${extraWeekStart.toLocaleDateString('fr-FR', { month: 'short', year: '2-digit' })} S${weekOfMonth}`;
+        const weeksInMonth = weeksByMonth.get(monthKey) || 4;
+        const weeklyBaseIncome = config.baseNetIncome / weeksInMonth;
+        const adjustment = monthlyAdjustments.find(ma => ma.month === monthKey);
+        const weeklyAdditionalIncome = adjustment?.additionalIncome ? adjustment.additionalIncome / weeksInMonth : 0;
+        const weeklyAdditionalCosts = adjustment?.additionalCosts ? adjustment.additionalCosts / weeksInMonth : 0;
+        // use recent average to be conservative about future contributions
+        const weeklyContribution = Math.max(0, avgWeekly);
+
+        const fundStart = extraCumulative;
+        extraCumulative += weeklyContribution;
+        const fundEnd = extraCumulative;
+
+        months.push({
+          month: monthKey,
+          period,
+          baseIncome: weeklyBaseIncome,
+          additionalIncome: weeklyAdditionalIncome,
+          additionalCosts: weeklyAdditionalCosts,
+          weeklyContribution,
+          kitchenFundStart: fundStart,
+          kitchenFundEnd: fundEnd,
+          remainingToTarget: config.targetAmount - fundEnd,
+          targetTrackFund: 0,
+          gapVsTrack: 0,
+          scenario: 'projection'
+        });
+
+        if (fundEnd >= config.targetAmount) {
+          estimatedReachMonth = period;
+          break;
+        }
+
+        extraWeekStart = new Date(extraWeekStart.getTime() + weekDuration);
+      }
+    }
+  }
+
   return {
     months,
     targetReached,
     reachDate,
+    estimatedReachMonth,
     finalAmount,
     finalGap
   };
 }
+

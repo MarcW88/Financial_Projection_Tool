@@ -1,6 +1,6 @@
 'use client';
 
-import { LayoutDashboard, BarChart, Settings, FileText } from 'lucide-react';
+import { LayoutDashboard, BarChart } from 'lucide-react';
 import Image from 'next/image';
 import { Section } from '@/types';
 
@@ -11,9 +11,7 @@ interface SidebarProps {
 
 const navItems = [
   { name: 'Projection', id: 'projection' as const, icon: LayoutDashboard },
-  { name: 'Données', id: 'donnees' as const, icon: BarChart },
-  { name: 'Scénarios', id: 'scenarios' as const, icon: FileText },
-  { name: 'Paramètres', id: 'parametres' as const, icon: Settings },
+  { name: 'Ajustements', id: 'ajustements' as const, icon: BarChart },
 ];
 
 export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
@@ -46,8 +44,7 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
       </nav>
 
       <div className="mt-auto w-full rounded-3xl border border-sidebar-border bg-card p-3 text-center text-xs text-sidebar-foreground/80">
-        <p className="font-semibold text-sidebar-primary">Noctua</p>
-        <p>Dashboard</p>
+        <p className="font-semibold text-sidebar-primary">Projection</p>
       </div>
     </aside>
   );

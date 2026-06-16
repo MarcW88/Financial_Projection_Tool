@@ -74,8 +74,7 @@ export default function Home() {
           <div className="max-w-7xl mx-auto space-y-6">
             <header className="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
               <p className="text-sm uppercase tracking-[0.2em] text-sidebar-primary">Projection Épargne</p>
-              <h1 className="mt-3 text-3xl font-bold text-foreground">Financial Projection Tool</h1>
-              <p className="mt-3 text-sm leading-6 text-muted-foreground">Un tableau de bord simple et clair pour suivre votre budget et votre objectif.</p>
+              <h1 className="mt-3 text-3xl font-bold text-foreground">Projection financière</h1>
             </header>
             <div className="space-y-6">
             {errors.length > 0 && (
@@ -137,7 +136,7 @@ export default function Home() {
                           </div>
                           <div className="rounded-3xl border border-border bg-muted p-4">
                             <p className="text-sm text-muted-foreground">Atteint le</p>
-                            <p className="mt-1 text-xl font-semibold">{projection?.reachDate || 'Pas atteint'}</p>
+                            <p className="mt-1 text-xl font-semibold">{projection?.reachDate || projection?.estimatedReachMonth || 'Pas atteint'}</p>
                           </div>
                         </div>
                       </CardContent>
@@ -150,21 +149,22 @@ export default function Home() {
                         {monthlyAdjustments.length === 0 ? (
                           <p className="text-sm text-muted-foreground">Aucun ajustement ajouté.</p>
                         ) : (
-                          <div className="space-y-3">
-                            {monthlyAdjustments.map((adjustment) => (
-                              <div key={adjustment.id} className="rounded-3xl border border-border bg-muted p-4">
-                                <div className="flex justify-between gap-4">
+                          <div className="space-y-2">
+                            {(() => {
+                              const counts: Record<string, number> = {};
+                              monthlyAdjustments.forEach(a => { counts[a.month] = (counts[a.month] || 0) + 1; });
+                              return Object.keys(counts).sort().map(month => (
+                                <div key={month} className="flex items-center justify-between rounded-2xl border border-border bg-muted p-3">
                                   <div>
-                                    <p className="text-sm font-medium">{adjustment.month}</p>
-                                    <p className="text-sm text-muted-foreground">{adjustment.note || 'Coût ou revenu supplémentaire'}</p>
+                                    <p className="text-sm font-medium">{month}</p>
+                                    <p className="text-xs text-muted-foreground">{counts[month]} ajustement(s)</p>
                                   </div>
-                                  <div className="text-right">
-                                    <p className="text-sm text-green-600">+{adjustment.additionalIncome.toLocaleString()}€</p>
-                                    <p className="text-sm text-destructive">-{adjustment.additionalCosts.toLocaleString()}€</p>
+                                  <div>
+                                    <Button size="sm" variant="outline" onClick={() => setActiveSection('ajustements')}>Voir détails</Button>
                                   </div>
                                 </div>
-                              </div>
-                            ))}
+                              ));
+                            })()}
                           </div>
                         )}
                       </CardContent>
@@ -241,89 +241,7 @@ export default function Home() {
                         </CardContent>
                       </Card>
 
-                      <Card>
-                        <CardHeader>
-                          <CardTitle>Coûts et revenus mensuels</CardTitle>
-                          <CardDescription>Ajoutez séparément chaque variation de revenu ou coût.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                          <div className="grid gap-4 sm:grid-cols-2">
-                            <div>
-                              <Label>Mois (YYYY-MM)</Label>
-                              <Input
-                                type="text"
-                                placeholder="2025-06"
-                                value={newAdjustment.month}
-                                onChange={(e) => setNewAdjustment({ ...newAdjustment, month: e.target.value })}
-                              />
-                            </div>
-                            <div>
-                              <Label>Note</Label>
-                              <Input
-                                type="text"
-                                value={newAdjustment.note}
-                                onChange={(e) => setNewAdjustment({ ...newAdjustment, note: e.target.value })}
-                              />
-                            </div>
-                            <div>
-                              <Label>Revenus additionnels (€)</Label>
-                              <Input
-                                type="number"
-                                value={newAdjustment.additionalIncome}
-                                onChange={(e) => setNewAdjustment({ ...newAdjustment, additionalIncome: Number(e.target.value) })}
-                              />
-                            </div>
-                            <div>
-                              <Label>Coûts additionnels (€)</Label>
-                              <Input
-                                type="number"
-                                value={newAdjustment.additionalCosts}
-                                onChange={(e) => setNewAdjustment({ ...newAdjustment, additionalCosts: Number(e.target.value) })}
-                              />
-                            </div>
-                          </div>
-                          <Button onClick={handleAddAdjustment} className="w-full">Ajouter ajustement</Button>
-                          {adjustmentErrors.length > 0 && (
-                            <div className="rounded-3xl border border-destructive bg-destructive/10 p-4 text-sm text-destructive-foreground">
-                              {adjustmentErrors.map((error, index) => (
-                                <p key={index}>{error}</p>
-                              ))}
-                            </div>
-                          )}
-                          <div className="space-y-3">
-                            {monthlyAdjustments.length === 0 ? (
-                              <p className="text-sm text-muted-foreground">Aucun coût ou revenu mensuel défini.</p>
-                            ) : (
-                              monthlyAdjustments.map((adjustment) => (
-                                <div key={adjustment.id} className="rounded-3xl border border-border bg-muted p-4">
-                                  <div className="flex flex-wrap items-center justify-between gap-4">
-                                    <div>
-                                      <p className="font-semibold">{adjustment.month}</p>
-                                      <p className="text-sm text-muted-foreground">{adjustment.note || 'Sans description'}</p>
-                                    </div>
-                                    <div className="space-y-1 text-right">
-                                      <p className="text-sm text-green-600">+{adjustment.additionalIncome.toLocaleString()}€</p>
-                                      <p className="text-sm text-destructive">-{adjustment.additionalCosts.toLocaleString()}€</p>
-                                    </div>
-                                  </div>
-                                  <div className="mt-4 flex gap-2">
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() => {
-                                        removeMonthlyAdjustment(adjustment.id);
-                                        setTimeout(() => calculateProjection(), 0);
-                                      }}
-                                    >
-                                      Supprimer
-                                    </Button>
-                                  </div>
-                                </div>
-                              ))
-                            )}
-                          </div>
-                        </CardContent>
-                      </Card>
+                      {/* Coûts et revenus mensuels moved to the Ajustements page */}
                     </div>
                   </>
                 ) : (
@@ -339,53 +257,11 @@ export default function Home() {
               </section>
             )}
 
-            {(activeSection === 'donnees' || activeSection === 'projection') && (
-              <section className="space-y-6">
-                <div className="grid gap-6 lg:grid-cols-2">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Paramètres de base</CardTitle>
-                      <CardDescription>Revenus, épargne et objectif cible</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="grid gap-4">
-                        <div>
-                          <Label>Revenu net mensuel de base (€)</Label>
-                          <Input
-                            type="number"
-                            value={config.baseNetIncome}
-                            onChange={(e) => updateConfig({ baseNetIncome: Number(e.target.value) })}
-                          />
-                        </div>
-                        <div>
-                          <Label>Épargne actuelle (€)</Label>
-                          <Input
-                            type="number"
-                            value={config.currentSavings}
-                            onChange={(e) => updateConfig({ currentSavings: Number(e.target.value) })}
-                          />
-                        </div>
-                        <div>
-                          <Label>Objectif cuisine (€)</Label>
-                          <Input
-                            type="number"
-                            value={config.targetAmount}
-                            onChange={(e) => updateConfig({ targetAmount: Number(e.target.value) })}
-                          />
-                        </div>
-                        <div>
-                          <Label>Date cible</Label>
-                          <Input
-                            type="date"
-                            value={config.targetDate}
-                            onChange={(e) => updateConfig({ targetDate: e.target.value })}
-                          />
-                        </div>
-                      </div>
-                      <Button onClick={calculateProjection} className="w-full">Recalculer la projection</Button>
-                    </CardContent>
-                  </Card>
+            {/* Duplicate 'Données' block removed — controls are embedded in the Projection section above. */}
 
+            {activeSection === 'ajustements' && (
+              <section className="space-y-6">
+                <div className="grid gap-6 lg:grid-cols-1">
                   <Card>
                     <CardHeader>
                       <CardTitle>Coûts et revenus mensuels</CardTitle>
@@ -457,7 +333,6 @@ export default function Home() {
                                   size="sm"
                                   onClick={() => {
                                     removeMonthlyAdjustment(adjustment.id);
-                                    // Recalculate after state update
                                     setTimeout(() => calculateProjection(), 0);
                                   }}
                                 >
@@ -474,78 +349,7 @@ export default function Home() {
               </section>
             )}
 
-            {activeSection === 'scenarios' && (
-              <section className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Scénarios</CardTitle>
-                    <CardDescription>Testez plusieurs trajectoires et comparez l’impact.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                      {scenarios.map((scenario) => (
-                        <Button
-                          key={scenario.name}
-                          variant={selectedScenario === scenario.name ? 'default' : 'outline'}
-                          className="justify-start"
-                          onClick={() => setSelectedScenario(scenario.name)}
-                        >
-                          {scenario.name}
-                        </Button>
-                      ))}
-                    </div>
-                    <div className="rounded-3xl border border-border bg-muted p-4">
-                      <p className="text-sm font-medium">{scenarios.find((s) => s.name === selectedScenario)?.description}</p>
-                    </div>
-                    {currentProjection ? (
-                      <div className="space-y-4">
-                        <div className="grid gap-4 sm:grid-cols-3">
-                          <Card className="bg-muted">
-                            <CardHeader>
-                              <CardDescription>Montant final</CardDescription>
-                              <CardTitle className="text-xl">{currentProjection.finalAmount.toLocaleString()}€</CardTitle>
-                            </CardHeader>
-                          </Card>
-                          <Card className="bg-muted">
-                            <CardHeader>
-                              <CardDescription>Écart</CardDescription>
-                              <CardTitle className={`text-xl ${currentProjection.finalGap >= 0 ? 'text-destructive' : 'text-green-600'}`}>
-                                {currentProjection.finalGap.toLocaleString()}€
-                              </CardTitle>
-                            </CardHeader>
-                          </Card>
-                          <Card className="bg-muted">
-                            <CardHeader>
-                              <CardDescription>Objectif atteint</CardDescription>
-                              <CardTitle className={`text-xl ${currentProjection.targetReached ? 'text-green-600' : 'text-red-600'}`}>
-                                {currentProjection.targetReached ? 'Oui' : 'Non'}
-                              </CardTitle>
-                            </CardHeader>
-                          </Card>
-                        </div>
-                        <Card className="bg-muted">
-                          <CardHeader>
-                            <CardTitle>Projection - Scénario {selectedScenario}</CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <ProjectionLineChart data={currentProjection.months} targetAmount={config.targetAmount} />
-                          </CardContent>
-                        </Card>
-                      </div>
-                    ) : (
-                      <Card>
-                        <CardHeader>
-                          <CardTitle>Scénario non disponible</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <p className="text-sm text-muted-foreground">Calculez la projection d’abord pour comparer les scénarios.</p>
-                        </CardContent>
-                      </Card>
-                    )}
-                  </CardContent>
-                </Card>
-              </section>
-            )}
+            {/* Scénarios page removed — not used */}
             </div>
           </div>
         </main>

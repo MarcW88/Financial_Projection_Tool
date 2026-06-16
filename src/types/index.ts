@@ -44,8 +44,8 @@ export interface ProjectionResult {
   months: ProjectionMonth[];
   targetReached: boolean;
   reachDate?: string;
+  estimatedReachMonth?: string;
   finalAmount: number;
   finalGap: number;
 }
-
-export type Section = 'projection' | 'donnees' | 'scenarios' | 'parametres';
+export type Section = 'projection' | 'ajustements';
