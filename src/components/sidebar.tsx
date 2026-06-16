@@ -12,7 +12,8 @@ interface SidebarProps {
 
 const navItems = [
   { name: 'Projection', id: 'projection' as const, icon: LayoutDashboard },
-  { name: 'Données', id: 'donnees' as const, icon: BarChart },
+  // Map "Données" to the main projection view (merged)
+  { name: 'Données', id: 'projection' as const, icon: BarChart },
   { name: 'Scénarios', id: 'scenarios' as const, icon: FileText },
   { name: 'Paramètres', id: 'projection' as const, icon: Settings },
 ];

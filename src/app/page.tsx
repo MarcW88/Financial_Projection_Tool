@@ -39,6 +39,7 @@ export default function Home() {
     note: ''
   });
   const [adjustmentErrors, setAdjustmentErrors] = useState<string[]>([]);
+  const [aggregation, setAggregation] = useState<'week' | 'month'>('week');
 
   const handleAddAdjustment = () => {
     const adjustment = {
@@ -183,11 +184,15 @@ export default function Home() {
                       </CardContent>
                     </Card>
                     <Card>
-                      <CardHeader>
+                      <CardHeader className="flex items-center justify-between">
                         <CardTitle>Flux de trésorerie</CardTitle>
+                        <div className="flex gap-2">
+                          <Button variant={aggregation === 'week' ? 'default' : 'outline'} size="sm" onClick={() => setAggregation('week')}>Semaine</Button>
+                          <Button variant={aggregation === 'month' ? 'default' : 'outline'} size="sm" onClick={() => setAggregation('month')}>Mois</Button>
+                        </div>
                       </CardHeader>
                       <CardContent>
-                        <CashflowBarChart data={projection.months} />
+                        <CashflowBarChart data={projection.months} view={aggregation} />
                       </CardContent>
                     </Card>
                   </>

@@ -26,6 +26,7 @@ export interface ProjectionMonth {
   targetTrackFund: number;
   gapVsTrack: number;
   scenario: string;
+  projectedTrajectory?: number;
 }
 
 export interface ScenarioConfig {

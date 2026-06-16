@@ -13,7 +13,8 @@ export function ProjectionLineChart({ data, targetAmount }: ProjectionLineChartP
     month: month.period,
     fondsRéel: month.kitchenFundEnd,
     trajectoireCible: month.targetTrackFund,
-    objectif: targetAmount
+    objectif: targetAmount,
+    trajectoireProj: month.projectedTrajectory
   }));
 
   return (
@@ -52,6 +53,15 @@ export function ProjectionLineChart({ data, targetAmount }: ProjectionLineChartP
           stroke="#c2915d" 
           strokeWidth={2}
           strokeDasharray="5 5"
+          dot={false}
+          animationDuration={1000}
+        />
+        <Line 
+          type="monotone" 
+          dataKey="trajectoireProj" 
+          stroke="#4a90e2" 
+          strokeWidth={2}
+          strokeDasharray="3 3"
           dot={false}
           animationDuration={1000}
         />

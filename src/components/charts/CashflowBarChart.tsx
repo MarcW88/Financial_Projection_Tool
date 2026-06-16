@@ -5,16 +5,34 @@ import { ProjectionMonth } from '@/types';
 
 interface CashflowBarChartProps {
   data: ProjectionMonth[];
+  view?: 'week' | 'month';
 }
 
 export function CashflowBarChart({ data }: CashflowBarChartProps) {
-  const chartData = data.map(month => ({
-    month: month.period,
-    revenusBase: month.baseIncome,
-    revenusAdditionnels: month.additionalIncome,
-    coûts: month.additionalCosts,
-    contribution: month.weeklyContribution
-  }));
+  // Aggregate by month if requested
+  let chartData: any[];
+  if (view === 'month') {
+    const byMonth: Record<string, { monthLabel: string; revenusBase: number; revenusAdditionnels: number; coûts: number; contribution: number }> = {};
+    data.forEach(d => {
+      const key = d.month; // YYYY-MM
+      if (!byMonth[key]) {
+        byMonth[key] = { monthLabel: new Date(key + '-01').toLocaleDateString('fr-FR', { month: 'short', year: '2-digit' }), revenusBase: 0, revenusAdditionnels: 0, coûts: 0, contribution: 0 };
+      }
+      byMonth[key].revenusBase += d.baseIncome;
+      byMonth[key].revenusAdditionnels += d.additionalIncome;
+      byMonth[key].coûts += d.additionalCosts;
+      byMonth[key].contribution += d.weeklyContribution;
+    });
+    chartData = Object.keys(byMonth).map(k => ({ month: byMonth[k].monthLabel, ...byMonth[k] }));
+  } else {
+    chartData = data.map(month => ({
+      month: month.period,
+      revenusBase: month.baseIncome,
+      revenusAdditionnels: month.additionalIncome,
+      coûts: month.additionalCosts,
+      contribution: month.weeklyContribution
+    }));
+  }
 
   return (
     <ResponsiveContainer width="100%" height={400}>
