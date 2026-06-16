@@ -67,7 +67,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="flex min-h-screen">
-        <Sidebar />
+        <Sidebar activeSection={activeSection} onSectionChange={setActiveSection} />
         <main className="flex-1 px-6 py-8">
           <div className="max-w-7xl mx-auto space-y-6">
             <header className="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
@@ -103,18 +103,14 @@ export default function Home() {
                       </div>
                       <p className="text-sm leading-6 text-muted-foreground">La projection utilise des semaines réparties par mois pour afficher votre épargne et votre trésorerie de manière plus fine.</p>
                       <p className="text-sm leading-6 text-muted-foreground">La trajectoire cible indique la ligne linéaire à suivre pour atteindre l'objectif à la date choisie, à partir de votre épargne actuelle.</p>
-                      <div className="grid gap-3 sm:grid-cols-3">
-                        <div className="rounded-3xl border border-border bg-muted p-4">
-                          <p className="text-sm text-muted-foreground">Objectif</p>
-                          <p className="mt-2 text-2xl font-semibold">{config.targetAmount.toLocaleString()}€</p>
-                        </div>
+                      <div className="grid gap-3 sm:grid-cols-2">
                         <div className="rounded-3xl border border-border bg-muted p-4">
                           <p className="text-sm text-muted-foreground">Projeté</p>
                           <p className="mt-2 text-2xl font-semibold">{projection ? `${projection.finalAmount.toLocaleString()}€` : '---'}</p>
                         </div>
                         <div className="rounded-3xl border border-border bg-muted p-4">
-                          <p className="text-sm text-muted-foreground">Montant manquant</p>
-                          <p className={`mt-2 text-2xl font-semibold ${projection && projection.finalGap >= 0 ? 'text-destructive' : 'text-green-600'}`}>{projection ? `${projection.finalGap.toLocaleString()}€` : '---'}</p>
+                          <p className="text-sm text-muted-foreground">Objectif atteint</p>
+                          <p className={`mt-2 text-2xl font-semibold ${projection && projection.targetReached ? 'text-green-600' : 'text-destructive'}`}>{projection ? (projection.targetReached ? 'Oui' : 'Non') : '---'}</p>
                         </div>
                       </div>
                     </div>
@@ -123,21 +119,23 @@ export default function Home() {
                   <div className="space-y-4">
                     <Card>
                       <CardHeader>
-                        <CardTitle className="text-lg">Détails rapides</CardTitle>
+                        <CardTitle className="text-lg">Écart vs cible</CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-3">
                         <div className="grid gap-3">
                           <div className="rounded-3xl border border-border bg-muted p-4">
-                            <p className="text-sm text-muted-foreground">Revenu net mensuel</p>
-                            <p className="mt-1 text-xl font-semibold">{config.baseNetIncome.toLocaleString()}€</p>
+                            <p className="text-sm text-muted-foreground">Montant cible</p>
+                            <p className="mt-1 text-xl font-semibold">{config.targetAmount.toLocaleString()}€</p>
                           </div>
                           <div className="rounded-3xl border border-border bg-muted p-4">
-                            <p className="text-sm text-muted-foreground">Épargne actuelle</p>
-                            <p className="mt-1 text-xl font-semibold">{config.currentSavings.toLocaleString()}€</p>
+                            <p className="text-sm text-muted-foreground">Manquant</p>
+                            <p className={`mt-1 text-xl font-semibold ${projection && projection.finalGap >= 0 ? 'text-destructive' : 'text-green-600'}`}>
+                              {projection ? `${projection.finalGap.toLocaleString()}€` : '---'}
+                            </p>
                           </div>
                           <div className="rounded-3xl border border-border bg-muted p-4">
-                            <p className="text-sm text-muted-foreground">Date cible</p>
-                            <p className="mt-1 text-xl font-semibold">{new Date(config.targetDate).toLocaleDateString('fr-FR')}</p>
+                            <p className="text-sm text-muted-foreground">Atteint le</p>
+                            <p className="mt-1 text-xl font-semibold">{projection?.reachDate || 'Pas atteint'}</p>
                           </div>
                         </div>
                       </CardContent>

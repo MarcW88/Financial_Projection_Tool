@@ -1,17 +1,23 @@
 'use client';
 
-import Link from 'next/link';
-import { LayoutDashboard, BarChart, Settings, FileText, Wallet } from 'lucide-react';
+import { LayoutDashboard, BarChart, Settings, FileText } from 'lucide-react';
 import Image from 'next/image';
 
+type Section = 'projection' | 'donnees' | 'scenarios';
+
+interface SidebarProps {
+  activeSection: Section;
+  onSectionChange: (section: Section) => void;
+}
+
 const navItems = [
-  { name: 'Projection', href: '/#projection', icon: LayoutDashboard },
-  { name: 'Données', href: '/#donnees', icon: BarChart },
-  { name: 'Scénarios', href: '/#scenarios', icon: FileText },
-  { name: 'Paramètres', href: '/#parametres', icon: Settings },
+  { name: 'Projection', id: 'projection' as const, icon: LayoutDashboard },
+  { name: 'Données', id: 'donnees' as const, icon: BarChart },
+  { name: 'Scénarios', id: 'scenarios' as const, icon: FileText },
+  { name: 'Paramètres', id: 'projection' as const, icon: Settings },
 ];
 
-export function Sidebar() {
+export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
   return (
     <aside className="w-20 min-h-screen border-r border-sidebar-border bg-sidebar p-4 flex flex-col items-center gap-6">
       <div className="flex items-center justify-center w-12 h-12 rounded-full border border-sidebar-border bg-card overflow-hidden">
@@ -21,11 +27,21 @@ export function Sidebar() {
       <nav className="flex flex-col gap-3">
         {navItems.map((item) => {
           const Icon = item.icon;
+          const isActive = activeSection === item.id;
           return (
-            <Link key={item.name} href={item.href} className="group flex h-12 w-12 items-center justify-center rounded-2xl border border-transparent bg-card text-sidebar-foreground transition hover:border-sidebar-border hover:bg-muted">
+            <button
+              key={item.name}
+              onClick={() => onSectionChange(item.id)}
+              className={`group flex h-12 w-12 items-center justify-center rounded-2xl border transition ${
+                isActive
+                  ? 'border-sidebar-primary bg-sidebar-primary/10 text-sidebar-primary'
+                  : 'border-transparent bg-card text-sidebar-foreground hover:border-sidebar-border hover:bg-muted'
+              }`}
+              title={item.name}
+            >
               <Icon className="h-5 w-5 transition group-hover:text-sidebar-primary" />
               <span className="sr-only">{item.name}</span>
-            </Link>
+            </button>
           );
         })}
       </nav>
