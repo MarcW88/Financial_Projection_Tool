@@ -9,6 +9,7 @@ import { useProjection } from '@/hooks/useProjection';
 import { ProjectionLineChart } from '@/components/charts/ProjectionLineChart';
 import { CashflowBarChart } from '@/components/charts/CashflowBarChart';
 import { validateMonthlyAdjustment } from '@/lib/validators';
+import { Sidebar } from '@/components/sidebar';
 
 type Section = 'projection' | 'donnees' | 'scenarios';
 
@@ -65,46 +66,16 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
-          <aside className="space-y-6 rounded-[2rem] border border-sidebar-border bg-sidebar p-6 shadow-sm">
-            <div>
-              <p className="text-sm uppercase tracking-[0.2em] text-sidebar-primary">Outil de projection</p>
-              <h1 className="mt-3 text-3xl font-bold text-sidebar-foreground">Financial Projection Tool</h1>
-              <p className="mt-3 text-sm leading-6 text-sidebar-foreground/80">Comprendre votre projet et vos scénarios en quelques clics.</p>
-            </div>
-
-            <div className="space-y-2">
-              <Button
-                variant={activeSection === 'projection' ? 'default' : 'outline'}
-                className="w-full justify-start"
-                onClick={() => setActiveSection('projection')}
-              >
-                Projection
-              </Button>
-              <Button
-                variant={activeSection === 'donnees' ? 'default' : 'outline'}
-                className="w-full justify-start"
-                onClick={() => setActiveSection('donnees')}
-              >
-                Données
-              </Button>
-              <Button
-                variant={activeSection === 'scenarios' ? 'default' : 'outline'}
-                className="w-full justify-start"
-                onClick={() => setActiveSection('scenarios')}
-              >
-                Scénarios
-              </Button>
-            </div>
-
-            <div className="rounded-3xl border border-sidebar-border bg-card p-4">
-              <p className="text-sm font-semibold text-sidebar-primary">Pour les néophytes</p>
-              <p className="mt-2 text-sm leading-6 text-sidebar-foreground/80">Renseignez simplement vos revenus et coûts. Le résultat s’actualise automatiquement.</p>
-            </div>
-          </aside>
-
-          <main className="space-y-6">
+      <div className="flex min-h-screen">
+        <Sidebar />
+        <main className="flex-1 px-6 py-8">
+          <div className="max-w-7xl mx-auto space-y-6">
+            <header className="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
+              <p className="text-sm uppercase tracking-[0.2em] text-sidebar-primary">Projection Épargne</p>
+              <h1 className="mt-3 text-3xl font-bold text-foreground">Financial Projection Tool</h1>
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">Un tableau de bord simple et clair pour suivre votre budget et votre objectif.</p>
+            </header>
+            <main className="space-y-6">
             {errors.length > 0 && (
               <div className="rounded-3xl border border-destructive bg-destructive/10 p-4 text-sm text-destructive-foreground">
                 {errors.map((error, i) => (
@@ -130,7 +101,8 @@ export default function Home() {
                         <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground">Synthèse</p>
                         <h2 className="mt-2 text-2xl font-semibold">Projection de votre épargne</h2>
                       </div>
-                      <p className="text-sm leading-6 text-muted-foreground">La projection prend en compte vos revenus, votre épargne actuelle et les ajustements mensuels.</p>
+                      <p className="text-sm leading-6 text-muted-foreground">La projection utilise des semaines réparties par mois pour afficher votre épargne et votre trésorerie de manière plus fine.</p>
+                      <p className="text-sm leading-6 text-muted-foreground">La trajectoire cible indique la ligne linéaire à suivre pour atteindre l'objectif à la date choisie, à partir de votre épargne actuelle.</p>
                       <div className="grid gap-3 sm:grid-cols-3">
                         <div className="rounded-3xl border border-border bg-muted p-4">
                           <p className="text-sm text-muted-foreground">Objectif</p>
@@ -141,8 +113,8 @@ export default function Home() {
                           <p className="mt-2 text-2xl font-semibold">{projection ? `${projection.finalAmount.toLocaleString()}€` : '---'}</p>
                         </div>
                         <div className="rounded-3xl border border-border bg-muted p-4">
-                          <p className="text-sm text-muted-foreground">Écart</p>
-                          <p className={`mt-2 text-2xl font-semibold ${projection && projection.finalGap >= 0 ? 'text-destructive' : 'text-foreground'}`}>{projection ? `${projection.finalGap.toLocaleString()}€` : '---'}</p>
+                          <p className="text-sm text-muted-foreground">Montant manquant</p>
+                          <p className={`mt-2 text-2xl font-semibold ${projection && projection.finalGap >= 0 ? 'text-destructive' : 'text-green-600'}`}>{projection ? `${projection.finalGap.toLocaleString()}€` : '---'}</p>
                         </div>
                       </div>
                     </div>

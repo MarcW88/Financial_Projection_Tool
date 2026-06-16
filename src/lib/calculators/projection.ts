@@ -7,57 +7,57 @@ export function buildProjection(
   const startDate = new Date();
   const targetDate = new Date(config.targetDate);
   
-  const months: ProjectionMonth[] = [];
+  const weeks: ProjectionMonth[] = [];
   let currentFund = config.currentSavings;
   let targetReached = false;
   let reachDate: string | undefined;
   
-  // Calculate target track (linear progression from currentSavings to targetAmount)
-  const currentDate = new Date(startDate);
-  currentDate.setDate(1);
-  
-  const totalMonths: number[] = [];
-  let tempDate = new Date(currentDate);
-  while (tempDate <= targetDate) {
-    totalMonths.push(tempDate.getTime());
-    tempDate.setMonth(tempDate.getMonth() + 1);
+  const weekStarts: Date[] = [];
+  const weekDuration = 7 * 24 * 60 * 60 * 1000;
+  let currentWeekStart = new Date(startDate);
+  currentWeekStart.setHours(0, 0, 0, 0);
+
+  while (currentWeekStart <= targetDate) {
+    weekStarts.push(new Date(currentWeekStart));
+    currentWeekStart = new Date(currentWeekStart.getTime() + weekDuration);
   }
-  
-  const totalMonthsCount = totalMonths.length;
+
+  const weeksByMonth = new Map<string, number>();
+  weekStarts.forEach((weekStart) => {
+    const monthKey = weekStart.toISOString().slice(0, 7);
+    weeksByMonth.set(monthKey, (weeksByMonth.get(monthKey) || 0) + 1);
+  });
+
   const startAmount = config.currentSavings;
-  const endAmount = config.targetAmount;
-  const monthlyTargetIncrement = (endAmount - startAmount) / totalMonthsCount;
-  
-  let monthIndex = 0;
-  
-  while (currentDate <= targetDate) {
-    const monthStr = currentDate.toISOString().slice(0, 7);
-    
-    // Find monthly adjustment for this month
-    const adjustment = monthlyAdjustments.find(ma => ma.month === monthStr);
-    const additionalIncome = adjustment?.additionalIncome || 0;
-    const additionalCosts = adjustment?.additionalCosts || 0;
-    
-    // Calculate monthly contribution
-    const baseIncome = config.baseNetIncome;
-    const monthlyContribution = Math.max(0, baseIncome + additionalIncome - additionalCosts);
-    
+  const totalWeeksCount = weekStarts.length;
+  const weeklyTargetIncrement = (config.targetAmount - startAmount) / totalWeeksCount;
+
+  weekStarts.forEach((weekStart, index) => {
+    const monthKey = weekStart.toISOString().slice(0, 7);
+    const weekOfMonth = Math.floor((weekStart.getDate() - 1) / 7) + 1;
+    const period = `${weekStart.toLocaleDateString('fr-FR', { month: 'short', year: '2-digit' })} S${weekOfMonth}`;
+
+    const adjustment = monthlyAdjustments.find(ma => ma.month === monthKey);
+    const weeksInMonth = weeksByMonth.get(monthKey) || 1;
+    const weeklyBaseIncome = config.baseNetIncome / weeksInMonth;
+    const weeklyAdditionalIncome = adjustment?.additionalIncome ? adjustment.additionalIncome / weeksInMonth : 0;
+    const weeklyAdditionalCosts = adjustment?.additionalCosts ? adjustment.additionalCosts / weeksInMonth : 0;
+    const weeklyContribution = Math.max(0, weeklyBaseIncome + weeklyAdditionalIncome - weeklyAdditionalCosts);
+
     const fundStart = currentFund;
-    currentFund += monthlyContribution;
+    currentFund += weeklyContribution;
     const fundEnd = currentFund;
-    
     const remainingToTarget = config.targetAmount - fundEnd;
-    
-    // Calculate target track fund (theoretical linear progression)
-    const targetTrackFund = startAmount + (monthlyTargetIncrement * (monthIndex + 1));
+    const targetTrackFund = startAmount + weeklyTargetIncrement * (index + 1);
     const gapVsTrack = fundEnd - targetTrackFund;
-    
-    months.push({
-      month: monthStr,
-      baseIncome,
-      additionalIncome,
-      additionalCosts,
-      monthlyContribution,
+
+    weeks.push({
+      month: monthKey,
+      period,
+      baseIncome: weeklyBaseIncome,
+      additionalIncome: weeklyAdditionalIncome,
+      additionalCosts: weeklyAdditionalCosts,
+      weeklyContribution,
       kitchenFundStart: fundStart,
       kitchenFundEnd: fundEnd,
       remainingToTarget,
@@ -65,18 +65,14 @@ export function buildProjection(
       gapVsTrack,
       scenario: 'base'
     });
-    
+
     if (!targetReached && fundEnd >= config.targetAmount) {
       targetReached = true;
-      reachDate = monthStr;
+      reachDate = period;
     }
-    
-    // Move to next month
-    currentDate.setMonth(currentDate.getMonth() + 1);
-    monthIndex++;
-  }
-  
-  const finalMonth = months[months.length - 1];
+  });
+
+  const finalMonth = weeks[weeks.length - 1];
   const finalAmount = finalMonth.kitchenFundEnd;
   const finalGap = config.targetAmount - finalAmount;
   

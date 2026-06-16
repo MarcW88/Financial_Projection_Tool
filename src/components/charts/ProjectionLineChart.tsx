@@ -10,7 +10,7 @@ interface ProjectionLineChartProps {
 
 export function ProjectionLineChart({ data, targetAmount }: ProjectionLineChartProps) {
   const chartData = data.map(month => ({
-    month: new Date(month.month).toLocaleDateString('fr-FR', { month: 'short', year: '2-digit' }),
+    month: month.period,
     fondsRéel: month.kitchenFundEnd,
     trajectoireCible: month.targetTrackFund,
     objectif: targetAmount

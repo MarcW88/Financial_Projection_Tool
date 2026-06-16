@@ -15,10 +15,11 @@ export interface MonthlyAdjustment {
 
 export interface ProjectionMonth {
   month: string;
+  period: string;
   baseIncome: number;
   additionalIncome: number;
   additionalCosts: number;
-  monthlyContribution: number;
+  weeklyContribution: number;
   kitchenFundStart: number;
   kitchenFundEnd: number;
   remainingToTarget: number;

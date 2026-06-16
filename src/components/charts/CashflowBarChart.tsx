@@ -9,11 +9,11 @@ interface CashflowBarChartProps {
 
 export function CashflowBarChart({ data }: CashflowBarChartProps) {
   const chartData = data.map(month => ({
-    month: new Date(month.month).toLocaleDateString('fr-FR', { month: 'short', year: '2-digit' }),
+    month: month.period,
     revenusBase: month.baseIncome,
     revenusAdditionnels: month.additionalIncome,
     coûts: month.additionalCosts,
-    contribution: month.monthlyContribution
+    contribution: month.weeklyContribution
   }));
 
   return (
