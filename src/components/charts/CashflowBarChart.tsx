@@ -8,7 +8,7 @@ interface CashflowBarChartProps {
   view?: 'week' | 'month';
 }
 
-export function CashflowBarChart({ data }: CashflowBarChartProps) {
+export function CashflowBarChart({ data, view = 'week' }: CashflowBarChartProps) {
   // Aggregate by month if requested
   let chartData: any[];
   if (view === 'month') {
