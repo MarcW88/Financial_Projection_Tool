@@ -73,9 +73,8 @@ export default function Home() {
         <main className="flex-1 px-6 py-8">
           <div className="max-w-7xl mx-auto space-y-6">
             <header className="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
-              <p className="text-sm uppercase tracking-[0.2em] text-sidebar-primary">Projection Épargne</p>
+              <p className="text-sm uppercase tracking-[0.2em] text-sidebar-primary">Tableau de bord</p>
               <h1 className="mt-3 text-3xl font-bold text-foreground">Projection financière</h1>
-              <p className="mt-3 text-sm leading-6 text-muted-foreground">Projection hebdomadaire regroupée par mois — visualise l’évolution prévue de votre épargne et la trajectoire linéaire nécessaire pour atteindre l’objectif à la date choisie.</p>
             </header>
             <div className="space-y-6">
             {errors.length > 0 && (
@@ -103,8 +102,7 @@ export default function Home() {
                         <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground">Synthèse</p>
                         <h2 className="mt-2 text-2xl font-semibold">Projection de votre épargne</h2>
                       </div>
-                      <p className="text-sm leading-6 text-muted-foreground">La projection utilise des semaines réparties par mois pour afficher votre épargne et votre trésorerie de manière plus fine.</p>
-                      <p className="text-sm leading-6 text-muted-foreground">La trajectoire cible indique la ligne linéaire à suivre pour atteindre l'objectif à la date choisie, à partir de votre épargne actuelle.</p>
+                      <p className="text-sm leading-5 text-muted-foreground">Légende : points = fonds réels, ligne en pointillés = trajectoire cible (objectif), courbe bleue = trajectoire projetée. Les données sont calculées par semaine, regroupées pour l'affichage mensuel.</p>
                       <div className="grid gap-3 sm:grid-cols-2">
                         <div className="rounded-3xl border border-border bg-muted p-4">
                           <p className="text-sm text-muted-foreground">Projeté</p>
