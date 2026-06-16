@@ -8,7 +8,7 @@ type Section = 'projection' | 'donnees' | 'scenarios' | 'parametres';
 
 interface SidebarProps {
   activeSection: Section;
-  onSectionChange: Dispatch<SetStateAction<Section>>;
+  onSectionChange: (section: Section) => void;
 }
 
 const navItems = [

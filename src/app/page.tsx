@@ -70,7 +70,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="flex min-h-screen">
-        <Sidebar activeSection={activeSection} onSectionChange={setActiveSection} />
+        <Sidebar activeSection={activeSection} onSectionChange={(s) => setActiveSection(s)} />
         <main className="flex-1 px-6 py-8">
           <div className="max-w-7xl mx-auto space-y-6">
             <header className="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
