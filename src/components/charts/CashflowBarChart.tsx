@@ -19,45 +19,45 @@ export function CashflowBarChart({ data }: CashflowBarChartProps) {
   return (
     <ResponsiveContainer width="100%" height={400}>
       <BarChart data={chartData}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+        <CartesianGrid strokeDasharray="3 3" stroke="rgba(112, 91, 70, 0.18)" />
         <XAxis 
           dataKey="month" 
-          stroke="#888"
+          stroke="#8b7a64"
           style={{ fontSize: '12px' }}
         />
         <YAxis 
-          stroke="#888"
+          stroke="#8b7a64"
           style={{ fontSize: '12px' }}
           tickFormatter={(value: number) => `${value.toLocaleString()}€`}
         />
         <Tooltip 
-          contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
-          itemStyle={{ color: '#fff' }}
-          labelStyle={{ color: '#888' }}
+          contentStyle={{ backgroundColor: '#fff8ea', border: '1px solid rgba(112, 91, 70, 0.18)', borderRadius: '8px' }}
+          itemStyle={{ color: '#2c2924' }}
+          labelStyle={{ color: '#8b7a64' }}
           formatter={(value: any) => typeof value === 'number' ? `${value.toLocaleString()}€` : '0€'}
         />
         <Legend />
         <Bar 
           dataKey="revenusBase" 
-          fill="#3b82f6" 
+          fill="#526a68" 
           name="Revenus base"
           animationDuration={800}
         />
         <Bar 
           dataKey="revenusAdditionnels" 
-          fill="#60a5fa" 
+          fill="#dce8e5" 
           name="Revenus additionnels"
           animationDuration={800}
         />
         <Bar 
           dataKey="coûts" 
-          fill="#ef4444" 
+          fill="#c2915d" 
           name="Coûts"
           animationDuration={800}
         />
         <Bar 
           dataKey="contribution" 
-          fill="#10b981" 
+          fill="#8b7a64" 
           name="Contribution nette"
           animationDuration={800}
         />

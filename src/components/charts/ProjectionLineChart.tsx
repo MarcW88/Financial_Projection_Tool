@@ -19,37 +19,37 @@ export function ProjectionLineChart({ data, targetAmount }: ProjectionLineChartP
   return (
     <ResponsiveContainer width="100%" height={400}>
       <LineChart data={chartData}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+        <CartesianGrid strokeDasharray="3 3" stroke="rgba(112, 91, 70, 0.18)" />
         <XAxis 
           dataKey="month" 
-          stroke="#888"
+          stroke="#8b7a64"
           style={{ fontSize: '12px' }}
         />
         <YAxis 
-          stroke="#888"
+          stroke="#8b7a64"
           style={{ fontSize: '12px' }}
           tickFormatter={(value: number) => `${value.toLocaleString()}€`}
         />
         <Tooltip 
-          contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
-          itemStyle={{ color: '#fff' }}
-          labelStyle={{ color: '#888' }}
+          contentStyle={{ backgroundColor: '#fff8ea', border: '1px solid rgba(112, 91, 70, 0.18)', borderRadius: '8px' }}
+          itemStyle={{ color: '#2c2924' }}
+          labelStyle={{ color: '#8b7a64' }}
           formatter={(value: any) => typeof value === 'number' ? `${value.toLocaleString()}€` : '0€'}
         />
         <Legend />
         <Line 
           type="monotone" 
           dataKey="fondsRéel" 
-          stroke="#3b82f6" 
+          stroke="#526a68" 
           strokeWidth={3}
-          dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
+          dot={{ fill: '#526a68', strokeWidth: 2, r: 4 }}
           activeDot={{ r: 6 }}
           animationDuration={1000}
         />
         <Line 
           type="monotone" 
           dataKey="trajectoireCible" 
-          stroke="#f59e0b" 
+          stroke="#c2915d" 
           strokeWidth={2}
           strokeDasharray="5 5"
           dot={false}
@@ -58,7 +58,7 @@ export function ProjectionLineChart({ data, targetAmount }: ProjectionLineChartP
         <Line 
           type="monotone" 
           dataKey="objectif" 
-          stroke="#10b981" 
+          stroke="#8b7a64" 
           strokeWidth={2}
           strokeDasharray="10 5"
           dot={false}
