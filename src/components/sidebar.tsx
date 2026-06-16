@@ -3,7 +3,7 @@
 import { LayoutDashboard, BarChart, Settings, FileText } from 'lucide-react';
 import Image from 'next/image';
 
-type Section = 'projection' | 'donnees' | 'scenarios';
+type Section = 'projection' | 'donnees' | 'scenarios' | 'parametres';
 
 interface SidebarProps {
   activeSection: Section;
