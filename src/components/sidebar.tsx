@@ -2,12 +2,13 @@
 
 import { LayoutDashboard, BarChart, Settings, FileText } from 'lucide-react';
 import Image from 'next/image';
+import { Dispatch, SetStateAction } from 'react';
 
 type Section = 'projection' | 'donnees' | 'scenarios' | 'parametres';
 
 interface SidebarProps {
   activeSection: Section;
-  onSectionChange: (section: Section) => void;
+  onSectionChange: Dispatch<SetStateAction<Section>>;
 }
 
 const navItems = [
