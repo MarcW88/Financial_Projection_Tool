@@ -57,6 +57,8 @@ export default function Home() {
 
     setAdjustmentErrors([]);
     addMonthlyAdjustment(adjustment);
+    // Ensure projection recalculates after state update
+    setTimeout(() => calculateProjection(), 0);
     setNewAdjustment({ month: '', additionalIncome: 0, additionalCosts: 0, note: '' });
   };
 
@@ -315,7 +317,17 @@ export default function Home() {
                                 </div>
                               </div>
                               <div className="mt-4 flex gap-2">
-                                <Button variant="outline" size="sm" onClick={() => removeMonthlyAdjustment(adjustment.id)}>Supprimer</Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    removeMonthlyAdjustment(adjustment.id);
+                                    // Recalculate after state update
+                                    setTimeout(() => calculateProjection(), 0);
+                                  }}
+                                >
+                                  Supprimer
+                                </Button>
                               </div>
                             </div>
                           ))
