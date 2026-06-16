@@ -180,7 +180,7 @@ export default function Home() {
                         <CardTitle>Projection vs trajectoire cible</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <ProjectionLineChart data={projection.months} targetAmount={config.targetAmount} />
+                        <ProjectionLineChart data={projection?.months || []} targetAmount={config.targetAmount} />
                       </CardContent>
                     </Card>
                     <Card>
@@ -192,9 +192,140 @@ export default function Home() {
                         </div>
                       </CardHeader>
                       <CardContent>
-                        <CashflowBarChart data={projection.months} view={aggregation} />
+                        <CashflowBarChart data={projection?.months || []} view={aggregation} />
                       </CardContent>
                     </Card>
+
+                    {/* Paramètres & Ajustements (fusion Données) */}
+                    <div className="mt-6 grid gap-6 lg:grid-cols-2">
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Paramètres de base</CardTitle>
+                          <CardDescription>Revenus, épargne et objectif cible</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div className="grid gap-4">
+                            <div>
+                              <Label>Revenu net mensuel de base (€)</Label>
+                              <Input
+                                type="number"
+                                value={config.baseNetIncome}
+                                onChange={(e) => updateConfig({ baseNetIncome: Number(e.target.value) })}
+                              />
+                            </div>
+                            <div>
+                              <Label>Épargne actuelle (€)</Label>
+                              <Input
+                                type="number"
+                                value={config.currentSavings}
+                                onChange={(e) => updateConfig({ currentSavings: Number(e.target.value) })}
+                              />
+                            </div>
+                            <div>
+                              <Label>Objectif cuisine (€)</Label>
+                              <Input
+                                type="number"
+                                value={config.targetAmount}
+                                onChange={(e) => updateConfig({ targetAmount: Number(e.target.value) })}
+                              />
+                            </div>
+                            <div>
+                              <Label>Date cible</Label>
+                              <Input
+                                type="date"
+                                value={config.targetDate}
+                                onChange={(e) => updateConfig({ targetDate: e.target.value })}
+                              />
+                            </div>
+                          </div>
+                          <Button onClick={calculateProjection} className="w-full">Recalculer la projection</Button>
+                        </CardContent>
+                      </Card>
+
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Coûts et revenus mensuels</CardTitle>
+                          <CardDescription>Ajoutez séparément chaque variation de revenu ou coût.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div className="grid gap-4 sm:grid-cols-2">
+                            <div>
+                              <Label>Mois (YYYY-MM)</Label>
+                              <Input
+                                type="text"
+                                placeholder="2025-06"
+                                value={newAdjustment.month}
+                                onChange={(e) => setNewAdjustment({ ...newAdjustment, month: e.target.value })}
+                              />
+                            </div>
+                            <div>
+                              <Label>Note</Label>
+                              <Input
+                                type="text"
+                                value={newAdjustment.note}
+                                onChange={(e) => setNewAdjustment({ ...newAdjustment, note: e.target.value })}
+                              />
+                            </div>
+                            <div>
+                              <Label>Revenus additionnels (€)</Label>
+                              <Input
+                                type="number"
+                                value={newAdjustment.additionalIncome}
+                                onChange={(e) => setNewAdjustment({ ...newAdjustment, additionalIncome: Number(e.target.value) })}
+                              />
+                            </div>
+                            <div>
+                              <Label>Coûts additionnels (€)</Label>
+                              <Input
+                                type="number"
+                                value={newAdjustment.additionalCosts}
+                                onChange={(e) => setNewAdjustment({ ...newAdjustment, additionalCosts: Number(e.target.value) })}
+                              />
+                            </div>
+                          </div>
+                          <Button onClick={handleAddAdjustment} className="w-full">Ajouter ajustement</Button>
+                          {adjustmentErrors.length > 0 && (
+                            <div className="rounded-3xl border border-destructive bg-destructive/10 p-4 text-sm text-destructive-foreground">
+                              {adjustmentErrors.map((error, index) => (
+                                <p key={index}>{error}</p>
+                              ))}
+                            </div>
+                          )}
+                          <div className="space-y-3">
+                            {monthlyAdjustments.length === 0 ? (
+                              <p className="text-sm text-muted-foreground">Aucun coût ou revenu mensuel défini.</p>
+                            ) : (
+                              monthlyAdjustments.map((adjustment) => (
+                                <div key={adjustment.id} className="rounded-3xl border border-border bg-muted p-4">
+                                  <div className="flex flex-wrap items-center justify-between gap-4">
+                                    <div>
+                                      <p className="font-semibold">{adjustment.month}</p>
+                                      <p className="text-sm text-muted-foreground">{adjustment.note || 'Sans description'}</p>
+                                    </div>
+                                    <div className="space-y-1 text-right">
+                                      <p className="text-sm text-green-600">+{adjustment.additionalIncome.toLocaleString()}€</p>
+                                      <p className="text-sm text-destructive">-{adjustment.additionalCosts.toLocaleString()}€</p>
+                                    </div>
+                                  </div>
+                                  <div className="mt-4 flex gap-2">
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => {
+                                        removeMonthlyAdjustment(adjustment.id);
+                                        setTimeout(() => calculateProjection(), 0);
+                                      }}
+                                    >
+                                      Supprimer
+                                    </Button>
+                                  </div>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
                   </>
                 ) : (
                   <Card>
