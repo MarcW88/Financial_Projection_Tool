@@ -75,7 +75,7 @@ export default function Home() {
               <h1 className="mt-3 text-3xl font-bold text-foreground">Financial Projection Tool</h1>
               <p className="mt-3 text-sm leading-6 text-muted-foreground">Un tableau de bord simple et clair pour suivre votre budget et votre objectif.</p>
             </header>
-            <main className="space-y-6">
+            <div className="space-y-6">
             {errors.length > 0 && (
               <div className="rounded-3xl border border-destructive bg-destructive/10 p-4 text-sm text-destructive-foreground">
                 {errors.map((error, i) => (
@@ -401,8 +401,9 @@ export default function Home() {
                 </Card>
               </section>
             )}
-          </main>
-        </div>
+            </div>
+          </div>
+        </main>
       </div>
     </div>
   );
