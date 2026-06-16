@@ -142,7 +142,7 @@ export default function Home() {
                         </div>
                         <div className="rounded-3xl border border-border bg-muted p-4">
                           <p className="text-sm text-muted-foreground">Écart</p>
-                          <p className={`mt-2 text-2xl font-semibold ${projection?.finalGap >= 0 ? 'text-destructive' : 'text-foreground'}`}>{projection ? `${projection.finalGap.toLocaleString()}€` : '---'}</p>
+                          <p className={`mt-2 text-2xl font-semibold ${projection && projection.finalGap >= 0 ? 'text-destructive' : 'text-foreground'}`}>{projection ? `${projection.finalGap.toLocaleString()}€` : '---'}</p>
                         </div>
                       </div>
                     </div>
