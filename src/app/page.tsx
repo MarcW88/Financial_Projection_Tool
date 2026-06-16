@@ -10,8 +10,7 @@ import { ProjectionLineChart } from '@/components/charts/ProjectionLineChart';
 import { CashflowBarChart } from '@/components/charts/CashflowBarChart';
 import { validateMonthlyAdjustment } from '@/lib/validators';
 import { Sidebar } from '@/components/sidebar';
-
-type Section = 'projection' | 'donnees' | 'scenarios';
+import { Section } from '@/types';
 
 export default function Home() {
   const {

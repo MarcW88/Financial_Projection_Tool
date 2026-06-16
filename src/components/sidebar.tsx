@@ -2,9 +2,7 @@
 
 import { LayoutDashboard, BarChart, Settings, FileText } from 'lucide-react';
 import Image from 'next/image';
-import { Dispatch, SetStateAction } from 'react';
-
-type Section = 'projection' | 'donnees' | 'scenarios' | 'parametres';
+import { Section } from '@/types';
 
 interface SidebarProps {
   activeSection: Section;

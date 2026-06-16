@@ -47,3 +47,5 @@ export interface ProjectionResult {
   finalAmount: number;
   finalGap: number;
 }
+
+export type Section = 'projection' | 'donnees' | 'scenarios' | 'parametres';
