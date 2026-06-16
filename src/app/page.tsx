@@ -209,7 +209,7 @@ export default function Home() {
               </section>
             )}
 
-            {activeSection === 'donnees' && (
+            {(activeSection === 'donnees' || activeSection === 'projection') && (
               <section className="space-y-6">
                 <div className="grid gap-6 lg:grid-cols-2">
                   <Card>
