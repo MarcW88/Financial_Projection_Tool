@@ -7,7 +7,7 @@ export function buildProjection(
   const startDate = new Date();
   const targetDate = new Date(config.targetDate);
   
-  const weeks: ProjectionMonth[] = [];
+  const months: ProjectionMonth[] = [];
   let currentFund = config.currentSavings;
   let targetReached = false;
   let reachDate: string | undefined;
@@ -51,7 +51,7 @@ export function buildProjection(
     const targetTrackFund = startAmount + weeklyTargetIncrement * (index + 1);
     const gapVsTrack = fundEnd - targetTrackFund;
 
-    weeks.push({
+    months.push({
       month: monthKey,
       period,
       baseIncome: weeklyBaseIncome,
@@ -72,7 +72,7 @@ export function buildProjection(
     }
   });
 
-  const finalMonth = weeks[weeks.length - 1];
+  const finalMonth = months[months.length - 1];
   const finalAmount = finalMonth.kitchenFundEnd;
   const finalGap = config.targetAmount - finalAmount;
   
