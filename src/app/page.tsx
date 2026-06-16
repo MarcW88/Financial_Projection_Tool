@@ -75,6 +75,7 @@ export default function Home() {
             <header className="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
               <p className="text-sm uppercase tracking-[0.2em] text-sidebar-primary">Projection Épargne</p>
               <h1 className="mt-3 text-3xl font-bold text-foreground">Projection financière</h1>
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">Projection hebdomadaire regroupée par mois — visualise l’évolution prévue de votre épargne et la trajectoire linéaire nécessaire pour atteindre l’objectif à la date choisie.</p>
             </header>
             <div className="space-y-6">
             {errors.length > 0 && (

@@ -124,8 +124,8 @@ export function buildProjection(
           kitchenFundStart: fundStart,
           kitchenFundEnd: fundEnd,
           remainingToTarget: config.targetAmount - fundEnd,
-          targetTrackFund: 0,
-          gapVsTrack: 0,
+          targetTrackFund: config.targetAmount,
+          gapVsTrack: fundEnd - config.targetAmount,
           scenario: 'projection'
         });
 
