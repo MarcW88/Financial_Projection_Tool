@@ -62,6 +62,30 @@ export function useProjection() {
     calculateProjection();
   }, [calculateProjection]);
 
+  // Persist monthly adjustments to localStorage so changes survive across sessions
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('financial_projection_monthly_adjustments');
+      if (raw) {
+        const parsed = JSON.parse(raw) as MonthlyAdjustment[];
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setMonthlyAdjustments(parsed);
+        }
+      }
+    } catch (err) {
+      // ignore parse errors
+      // console.warn('Failed to load adjustments from localStorage', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('financial_projection_monthly_adjustments', JSON.stringify(monthlyAdjustments));
+    } catch (err) {
+      // ignore storage errors
+    }
+  }, [monthlyAdjustments]);
+
   return {
     config,
     updateConfig,
